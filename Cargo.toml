@@ -29,3 +29,9 @@ path = "src/CreateAccount.rs"
 [[bin]]
 name = "parseDB"
 path = "src/parseDB.rs"
+[[bin]]
+name = "ServerLogin"
+path = "src/ServerLogin.rs"
+[[bin]]
+name = "clientLogin"
+path = "src/clientLogin.rs"
