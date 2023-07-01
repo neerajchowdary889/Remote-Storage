@@ -1,36 +1,3 @@
-// use std::error::Error;
-// use tokio::io::{AsyncReadExt, AsyncWriteExt};
-// use tokio::net::TcpStream;
-// use serde_json::json;
-// mod CreateAccount;
-// #[tokio::main]
-// async fn main() -> Result<(), Box<dyn Error>> {
-
-//     let(Username,Password,TotalHash)=CreateAccount::CreateAccount();
-
-//     let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:14152").await?;
-//     println!("Connected to server");
-
-//     // Create a JSON object to send to the server
-//     let json_data = json!({
-//         "name": Username,
-//         "password": Password,
-//         "TotalHash": TotalHash
-//     });
-
-//     // Convert the JSON object to a string and send it to the server
-//     let data = serde_json::to_string(&json_data)?;
-//     stream.write_all(data.as_bytes()).await?;
-
-//     // Read the response from the server
-//     let mut buffer = [0; 1024];
-//     let size = stream.read(&mut buffer).await?;
-//     let response_data = String::from_utf8_lossy(&buffer[..size]);
-//     println!("Received response: {}", response_data);
-
-//     Ok(())
-// }
-
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
@@ -58,8 +25,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn create_account() -> Result<(), Box<dyn Error>> {
     let (username, password, total_hash) = CreateAccount::CreateAccount();
 
-    // let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
-    let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
+    let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
+    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
     println!("Connected to server");
 
     let json_data = json!({
