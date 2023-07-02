@@ -33,5 +33,5 @@ path = "src/parseDB.rs"
 name = "ServerLogin"
 path = "src/ServerLogin.rs"
 [[bin]]
-name = "clientLogin"
-path = "src/clientLogin.rs"
+name = "Redirect"
+path = "src/Redirect.rs"

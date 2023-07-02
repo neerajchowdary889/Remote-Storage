@@ -32,15 +32,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 };
 
                 // Process the JSON data
-                
-                // let json_data_copy = json_data.clone();
+
+                let json_data_copy = json_data.clone();
 
                 // tokio::spawn(async move {
                 //     let task = task::spawn(async move {
-                //         database::Start(json_data_copy).await;
+                //         verifyCredits::check_user_credentials(json_data_copy).await;
                 //     });
                 //     task.await.unwrap();
                 // }).await.unwrap();
+                let response = match verifyCredits::check_user_credentials::<Box<dyn Error>>(json_data_copy).await {
+                    Ok(response) => response,
+                    Err(err) => {
+                        eprintln!("Error processing JSON data: {}", err);
+                        return;
+                    }
+                };
 
                 let response = match process_json_data(json_data) {
                     Ok(response) => response,
@@ -72,3 +79,23 @@ fn process_json_data(data: serde_json::Value) -> Result<serde_json::Value, Box<d
         "message": "JSON data processed successfully"
     }))
 }
+// pub fn valid(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
+//     // Process the JSON data here and return a response
+//     // For example, you can extract data from the JSON object and perform some computation on it
+//     // Then, create a new JSON object as the response and return it
+
+//     Ok(serde_json::json!({
+//         "status": "Valid User",
+//         "message": "Thankyou for Logging in"
+//     }))
+// }
+// pub fn invalid(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
+//     // Process the JSON data here and return a response
+//     // For example, you can extract data from the JSON object and perform some computation on it
+//     // Then, create a new JSON object as the response and return it
+
+//     Ok(serde_json::json!({
+//         "status": "Invalid User",
+//         "message": "Create an account to login"
+//     }))
+// }

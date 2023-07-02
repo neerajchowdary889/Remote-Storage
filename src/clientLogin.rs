@@ -26,7 +26,7 @@ pub fn Login() -> (String, String, String){
     }
 
     let(Username,Password, TotalHash) = convert_to_sha(username.trim().to_string(), password.trim().to_string());
-    println!("{}\n{}\n{}",Username,Password,TotalHash);  // This is the final output
+    // println!("{}\n{}\n{}",Username,Password,TotalHash);  // This is the final output
     return(Username,Password,TotalHash)
   
 }
