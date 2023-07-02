@@ -2,7 +2,7 @@ use rusqlite::{params, Connection};
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use serde_json::Value;
-// use ServerLogin;
+
 
 pub async fn check_user_credentials<E>(data: serde_json::Value) -> Result<Value, Box<dyn std::error::Error>> {
     let conn = Connection::open("credits.db")?;
@@ -27,7 +27,12 @@ pub async fn check_user_credentials<E>(data: serde_json::Value) -> Result<Value,
         let message = response["message"].as_str().unwrap();
 
         println!("Status: {}", status);
-        println!("Message: {}", message);
+        println!("Message: {}\n", message);
+
+        // let response_data = serde_json::to_string(&status).unwrap();
+        // if let Err(err) = stream.write_all(response_data.as_bytes()).await {
+        //     eprintln!("Error writing to socket: {}", err);
+        // }
 
         Ok(response)
     } else {
@@ -38,6 +43,11 @@ pub async fn check_user_credentials<E>(data: serde_json::Value) -> Result<Value,
 
         println!("Status: {}", status);
         println!("Message: {}\n", message);
+
+        // let response_data = serde_json::to_string(&status).unwrap();
+        // if let Err(err) = stream.write_all(response_data.as_bytes()).await {
+        //     eprintln!("Error writing to socket: {}", err);
+        // }
 
         Ok(response)
     }

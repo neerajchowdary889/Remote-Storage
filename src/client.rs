@@ -1,9 +1,11 @@
+#![allow(warnings)]
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::TcpStream;
 use serde_json::json;
 mod CreateAccount;
 mod clientLogin;
+mod validuser;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -26,8 +28,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn create_account() -> Result<(), Box<dyn Error>> {
     let (username, password, total_hash) = CreateAccount::CreateAccount();
 
-    let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
-    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
+    // let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
+    let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
     println!("Connected to server");
 
     let json_data = json!({
@@ -51,7 +53,7 @@ async fn log_in() -> Result<(), Box<dyn Error>> {
     let (username, password, total_hash) = clientLogin::Login();
 
     let mut stream = TcpStream::connect("127.0.0.1:5050").await?;
-    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
+    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:17554").await?;
     println!("Connected to server");
 
     let json_data = json!({
@@ -67,6 +69,16 @@ async fn log_in() -> Result<(), Box<dyn Error>> {
     let size = stream.read(&mut buffer).await?;
     let response_data = String::from_utf8_lossy(&buffer[..size]);
     println!("Received response: {}", response_data);
+
+    let response_json = serde_json::from_str::<serde_json::Value>(&response_data)?;
+    let user = response_json.get("User").and_then(|v| v.as_str()).unwrap_or("Unknown User");
+
+    match user{
+        "Unknown User" => println!("User not found"),
+        "Invalid User" => println!("Invalid Password"),
+        "Valid User" => validuser::user(total_hash),
+        _ => println!("Unknown Error"),
+    }
 
     Ok(())
 }

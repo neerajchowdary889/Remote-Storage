@@ -1,3 +1,4 @@
+#![allow(warnings)]
 use std::error::Error;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tokio::net::{TcpListener, TcpStream};
@@ -5,6 +6,7 @@ use std::thread;
 use tokio::task;
 use tokio::runtime::Runtime;
 mod verifyCredits;
+
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -41,6 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 //     });
                 //     task.await.unwrap();
                 // }).await.unwrap();
+
                 let response = match verifyCredits::check_user_credentials::<Box<dyn Error>>(json_data_copy).await {
                     Ok(response) => response,
                     Err(err) => {
@@ -48,8 +51,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         return;
                     }
                 };
+                let status = response["status"].as_str().unwrap();
 
-                let response = match process_json_data(json_data) {
+                let response = match process_json_data(json_data, status.to_string()) {
                     Ok(response) => response,
                     Err(err) => {
                         eprintln!("Error processing JSON data: {}", err);
@@ -69,33 +73,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
-fn process_json_data(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
-    // Process the JSON data here and return a response
-    // For example, you can extract data from the JSON object and perform some computation on it
-    // Then, create a new JSON object as the response and return it
+fn process_json_data(data: serde_json::Value, status: String) -> Result<serde_json::Value, Box<dyn Error>> {
 
     Ok(serde_json::json!({
         "status": "success",
+        "User": status,
         "message": "JSON data processed successfully"
     }))
+    
 }
-// pub fn valid(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
-//     // Process the JSON data here and return a response
-//     // For example, you can extract data from the JSON object and perform some computation on it
-//     // Then, create a new JSON object as the response and return it
-
-//     Ok(serde_json::json!({
-//         "status": "Valid User",
-//         "message": "Thankyou for Logging in"
-//     }))
-// }
-// pub fn invalid(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
-//     // Process the JSON data here and return a response
-//     // For example, you can extract data from the JSON object and perform some computation on it
-//     // Then, create a new JSON object as the response and return it
-
-//     Ok(serde_json::json!({
-//         "status": "Invalid User",
-//         "message": "Create an account to login"
-//     }))
-// }
