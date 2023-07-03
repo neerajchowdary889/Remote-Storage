@@ -76,7 +76,7 @@ async fn log_in() -> Result<(), Box<dyn Error>> {
     match user{
         "Unknown User" => println!("User not found"),
         "Invalid User" => println!("Invalid Password"),
-        "Valid User" => validuser::user(total_hash),
+        "Valid User" => validuser::User(total_hash),
         _ => println!("Unknown Error"),
     }
 

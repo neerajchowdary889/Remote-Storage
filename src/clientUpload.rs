@@ -2,36 +2,8 @@ use std::error::Error;
 use std::io::{self, Read, Write};
 use std::net::TcpStream;
 
-pub fn User(TotalHash: String){
-    println!("Choose an option:");
-    println!("1. Upload File");
-    println!("2. Download File");
-    println!("3. View Files");
-    let choice = read_user_input();
-
-    // Call the appropriate function based on the user's choice
-    if choice == 1 {
-        ServerUpload(TotalHash);
-    }
-    else if choice == 2 {
-        println!("Download File");
-    }
-    else if choice == 3 {
-        println!("View Files");
-    }
-    else {
-        println!("Invalid choice");
-    }
-}
-
-fn read_user_input() -> u32 {
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input).unwrap();
-    input.trim().parse().unwrap_or(0)
-}
-
 fn ServerUpload(total_hash: String) -> Result<(), Box<dyn Error>> {
-    let mut stream = TcpStream::connect("127.0.0.1:5100")?;
+    let mut stream = TcpStream::connect("127.0.0.1:21")?;
     println!("Connected to server");
 
     // Send the file name to the server
