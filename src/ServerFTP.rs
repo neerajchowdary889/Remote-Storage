@@ -6,10 +6,11 @@ use tokio::fs::File as TokioFile;
 use tokio::io::{AsyncReadExt, AsyncWriteExt, BufReader, BufWriter, ErrorKind};
 use tokio::fs::OpenOptions;
 use tokio::net::TcpStream;
-
+use std::env;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
+    // let listener = TcpListener::bind("0.0.0.0:5100").await?;
     let listener = TcpListener::bind("127.0.0.1:5100").await?;
     println!("FTP server listening on port 21");
 
@@ -36,11 +37,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
             let string_data = String::from_utf8_lossy(&buffer[..size]).trim().to_string();
 
             // Create a new file with the received file name in the Downloads folder
+            let mut file = format!("UserFolders/{}", string_data);
+            
             let mut file_path = PathBuf::new();
-            file_path.push(std::env::var("HOME").unwrap());
-            file_path.push("Documents");
-            file_path.push("Remote_Storage");
-            file_path.push("src");
+
+            env::set_current_dir(&file).unwrap();
+            println!("Current directory is {}", file_path.display());
             file_path.push("UserFolders");
             file_path.push(&string_data);
             file_path.push(&file_name);
