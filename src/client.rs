@@ -28,8 +28,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
 async fn create_account() -> Result<(), Box<dyn Error>> {
     let (username, password, total_hash) = CreateAccount::CreateAccount();
 
-    // let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
-    let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
+    let mut stream = TcpStream::connect("127.0.0.1:5000").await?;
+    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:18096").await?;
     println!("Connected to server");
 
     let json_data = json!({
