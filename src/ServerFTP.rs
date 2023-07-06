@@ -90,7 +90,10 @@ use tokio::net::{TcpListener, TcpStream};
 use std::thread;
 use tokio::task;
 use tokio::runtime::Runtime;
-mod verifyFiledata;
+use std::collections::HashMap;
+use serde_json::{json, Value};
+// mod clientRequests;
+mod parseDB;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
@@ -118,17 +121,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
 
                 let json_data_copy = json_data.clone();
-
-                let response = match verifyFiledata::CreateFile::<Box<dyn Error>>(json_data_copy).await {
+                let response = match check_requests(json_data_copy).await {
                     Ok(response) => response,
                     Err(err) => {
                         eprintln!("Error processing JSON data: {}", err);
                         return;
                     }
                 };
-                let status = response["status"].as_str().unwrap();
+                let Response = response["response"].as_str().unwrap();
+        println!("132");
 
-                let response = match process_json_data(json_data) {
+                let response = match process_json_data(json_data, Response) {
                     Ok(response) => response,
                     Err(err) => {
                         eprintln!("Error processing JSON data: {}", err);
@@ -148,11 +151,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     }
 }
 
-fn process_json_data(data: serde_json::Value) -> Result<serde_json::Value, Box<dyn Error>> {
+fn process_json_data(data: serde_json::Value, Response: &str) -> Result<serde_json::Value, Box<dyn Error>> {
 
+    println!("156");
     Ok(serde_json::json!({
+
         "status": "success",
-        "message": "JSON data processed successfully"
+        "response": Response
     }))
     
 }
@@ -179,3 +184,81 @@ fn process_json_data(data: serde_json::Value) -> Result<serde_json::Value, Box<d
 //     Ok(())
 
 // }
+
+// pub async fn check_requests(data: serde_json::Value) -> Result<Value, Box<dyn std::error::Error>> {
+    
+//     let request = data["request"].as_str().ok_or("Missing request number")?;
+//     let totalhash = data["TotalHash"].as_str().ok_or("Missing total hash")?;
+
+//     if request == "1" {
+//         let response = true;
+//         println!("Download files");
+//         Ok(json!({ "response": response }))
+//     } 
+//     else if request == "2" {
+//         // let mut key_value_pairs: HashMap<&str, &str> = HashMap::new();
+
+//         let map = parseDB::read_user_files(totalhash);
+//         // Add more key-value pairs as needed
+
+//         let map_value = serde_json::to_value(&map)?;
+//         Ok(json!({"response": map_value}))
+//     } 
+//     else {
+//         let err = "Invalid request number";
+//         println!("Error: {}", err);
+//         Ok(json!({ "error": err }))
+//     }
+// }
+// pub async fn check_requests(data: serde_json::Value) -> Result<Value, Box<dyn std::error::Error>> {
+//     let request = data["request"].as_str().ok_or("Missing request number")?;
+//     let totalhash = data["TotalHash"].as_str().ok_or("Missing total hash")?;
+//     println!("{}, {}",request, totalhash);
+
+//     if request == "1" {
+//         let response = true;
+//         println!("Download files");
+//         Ok(json!({ "response": response }))
+//     } else if request == "2" {
+//         println!("221");
+//         let map = match parseDB::read_user_files(totalhash) {
+//             Ok(map) => map,
+//             Err(err) => {
+//                 let error_msg = err.to_string();
+//                 return Ok(json!({ "error": error_msg }));
+//             }
+//         };
+
+//         println!("231");
+//         Ok(json!({ "response": map }))
+//     } else {
+//         let err = "Invalid request number";
+//         println!("Error: {}", err);
+//         Ok(json!({ "error": err }))
+//     }
+// }
+pub async fn check_requests(data: serde_json::Value) -> Result<Value, Box<dyn std::error::Error>> {
+    let request = data["request"].as_str().ok_or("Missing request number")?;
+    let totalhash = data["TotalHash"].as_str().ok_or("Missing total hash")?;
+
+    if request == "1" {
+        let response = true;
+        println!("Download files");
+        Ok(json!({ "response": response }))
+    } else if request == "2" {
+        let map = match parseDB::read_user_files(totalhash) {
+            Ok(map) => map,
+            Err(err) => {
+                let error_msg = err.to_string();
+                return Ok(json!({ "error": error_msg }));
+            }
+        };
+
+        let map_value = serde_json::to_value(&map)?;
+        Ok(json!({ "response": map_value }))
+    } else {
+        let err = "Invalid request number";
+        println!("Error: {}", err);
+        Ok(json!({ "error": err }))
+    }
+}

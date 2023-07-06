@@ -7,7 +7,8 @@ def sendfile(total_hash, Filename):
     SEPARATOR = "<SEPARATOR>"
     BUFFER_SIZE = 4096 # send 4096 bytes each time step
     # the ip address or hostname of the server, the receiver
-    host = "127.0.0.1"
+    # host = "127.0.0.1"
+    host = "192.168.126.50"
     # the port, let's use 5001
     port = 5100
     # the name of file we want to send, make sure it exists
@@ -44,6 +45,7 @@ def main():
     # Code for other functionality if any
     print("Executing main()")
     print("error")
+    sendfile("43779aafe3d07dcddefa257eb32b9752b2cd5193","ComputerNetworks-Abstract.pdf")
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "sendfile":

@@ -3,7 +3,6 @@ import tqdm
 import os
 import threading
 import sys
-import ipfshttpclient
 import asyncio
 import sqlite3
 
@@ -13,16 +12,21 @@ BUFFER_SIZE = 4096
 SEPARATOR = "<SEPARATOR>"
 DATABASE_FILE = "credits.db"  # Construct the absolute file path dynamically
 
+async def run_ipfs_command(command):
+    process = await asyncio.create_subprocess_shell(
+        command,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE
+    )
+    stdout, stderr = await process.communicate()
+    return stdout.decode().strip()
+
 async def upload_to_ipfs(file_path):
-    client = ipfshttpclient.connect()  # Connect to the local IPFS daemon
-
-    res = client.add(file_path)  # Upload the file to IPFS
-
-    cid = res["Hash"]  # Get the content identifier (CID) of the uploaded file
-
+    command = f"ipfs add -Q {file_path}"
+    cid = await run_ipfs_command(command)
     return cid
 
-def handle_client(client_socket):
+async def handle_client(client_socket):
     received = client_socket.recv(BUFFER_SIZE).decode()
     filename, filesize, totalhash = received.split(SEPARATOR)
     filename = os.path.basename(filename)
@@ -43,41 +47,42 @@ def handle_client(client_socket):
 
     client_socket.close()
 
-    cid = await upload_to_ipfs(filename)
+    cid = await upload_to_ipfs(filepath)
     print(f"File uploaded to IPFS. CID: {cid}")
 
     # Update the SQLite database with the CID and filename
     conn = sqlite3.connect(DATABASE_FILE)
     c = conn.cursor()
 
-    c.execute(f"UPDATE {totalhash} SET filename = ?, cid = ? WHERE totalhash = ?",
-              (filename, cid , totalhash))
+    # Check if table exists
+    c.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=?", (totalhash,))
+    result = c.fetchone()
+
+    if result is None:
+        # Create the table if it doesn't exist
+        create_table_query = f"CREATE TABLE IF NOT EXISTS '{totalhash}' (filename TEXT, cid TEXT, totalhash TEXT)"
+        c.execute(create_table_query)
+    # Update the table with filename and cid
+    insert_query = f"INSERT INTO '{totalhash}' (filename, cid) VALUES (?, ?)"
+    c.execute(insert_query, (filename, cid))
 
     conn.commit()
     conn.close()
 
-def start_server():
+async def start_server():
     s = socket.socket()
     s.bind((SERVER_HOST, SERVER_PORT))
     s.listen(5)
     print(f"[*] Listening as {SERVER_HOST}:{SERVER_PORT}")
 
     while True:
-        client_socket, address = s.accept()
+        client_socket, address = await loop.run_in_executor(None, s.accept)
         print(f"[+] {address} is connected.")
 
-        client_thread = threading.Thread(target=handle_client, args=(client_socket,))
-        client_thread.start()
+        asyncio.create_task(handle_client(client_socket))
 
     s.close()
-start_server()
-# def main():
-#     print("Error, Server not started...")
 
-
-# if __name__ == "__main__":
-#     if len(sys.argv) > 1 and sys.argv[1] == "StartServer":
-#         start_server()
-#     else:
-#         main()
+loop = asyncio.get_event_loop()
+loop.run_until_complete(start_server())
 
