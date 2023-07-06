@@ -57,3 +57,28 @@ fn ServerUpload(total_hash: String) -> Result<(), Box<dyn Error>> {
     Ok(())
 
 }
+
+fn Download(total_hash: String) -> Result<(), Box<dyn Error>>{
+    let (username, password, total_hash) = clientLogin::Login();
+
+    let mut stream = TcpStream::connect("127.0.0.1:5150").await?;
+    // let mut stream = TcpStream::connect("0.tcp.in.ngrok.io:17554").await?;
+    println!("Connected to server");
+
+    let json_data = json!({
+        "command": 1,
+        "TotalHash": total_hash
+    });
+
+    let data = serde_json::to_string(&json_data)?;
+    stream.write_all(data.as_bytes()).await?;
+
+    let mut buffer = [0; 1024];
+    let size = stream.read(&mut buffer).await?;
+    let response_data = String::from_utf8_lossy(&buffer[..size]);
+    println!("Received response: {}", response_data);
+
+    let response_json = serde_json::from_str::<serde_json::Value>(&response_data)?;
+    let user = response_json.get("User").and_then(|v| v.as_str()).unwrap_or("Unknown User");
+    Ok(())
+}
