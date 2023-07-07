@@ -3,20 +3,26 @@ import tqdm
 import os
 import sys
 
-def sendfile(total_hash, Filename):
+def sendfile(total_hash, Filename, IP):
     SEPARATOR = "<SEPARATOR>"
+
+
     BUFFER_SIZE = 4096 # send 4096 bytes each time step
     # the ip address or hostname of the server, the receiver
     # host = "127.0.0.1"
-    host = "192.168.118.50"
+    host = IP
     # the port, let's use 5001
-    port = 5100
+    port = 6000
     # the name of file we want to send, make sure it exists
     # filename = "ComputerNetworks-Abstract.pdf"
     filename = Filename
-    # get the file size
     filesize = os.path.getsize(filename)
     totalhash = total_hash
+    directory = f"UserFolders/{totalhash}"
+    os.makedirs(directory, exist_ok=True)
+    filepath = os.path.join(directory, filename)
+    # get the file size
+
     # create the client socket
     s = socket.socket()
     print(f"[+] Connecting to {host}:{port}")
@@ -50,6 +56,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "sendfile":
         total_hash = sys.argv[2]  # Retrieve the total hash from the command-line argument
         filename = sys.argv[3]
-        sendfile(total_hash, filename)
+        IP = sys.argv[4]
+        sendfile(total_hash, filename, IP)
     else:
         main()

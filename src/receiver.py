@@ -68,6 +68,9 @@ async def handle_client(client_socket):
 
     conn.commit()
     conn.close()
+    path = os.path.join(directory, filename)
+    os.remove(path)
+    print(f"File deleted from server. Filename: {filename}")
 
 async def start_server():
     s = socket.socket()
