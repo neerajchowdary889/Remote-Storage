@@ -13,7 +13,7 @@ def handle_client(client_socket):
     filename = os.path.basename(filename)
     filesize = int(filesize)
 
-    directory = f"UserFolders/{totalhash}"
+    directory = "DownloadedFiles/"
     os.makedirs(directory, exist_ok=True)
     filepath = os.path.join(directory, filename)
 

@@ -95,7 +95,7 @@ fn Download(total_hash: String) -> Result<(), Box<dyn Error>>{
     println!("IP: {}", IP);
     
     let json_data = json!({
-        "request": 1,
+        "request": "1",
         "IP": IP,
         "Filename": Retrivename,
         "TotalHash": total_hash

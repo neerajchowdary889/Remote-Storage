@@ -5,7 +5,7 @@ import sys
 
 def sendfile(total_hash, Filename, IP):
     SEPARATOR = "<SEPARATOR>"
-
+    source_directory = os.getcwd()
 
     BUFFER_SIZE = 4096 # send 4096 bytes each time step
     # the ip address or hostname of the server, the receiver
@@ -26,7 +26,7 @@ def sendfile(total_hash, Filename, IP):
     # create the client socket
     s = socket.socket()
     print(f"[+] Connecting to {host}:{port}")
-    s.connect((host, port))
+    s.connect((IP, port))
     print("[+] Connected.")
     # send the filename and filesize
     s.send(f"{filename}{SEPARATOR}{filesize}{SEPARATOR}{totalhash}".encode())
@@ -46,11 +46,19 @@ def sendfile(total_hash, Filename, IP):
             progress.update(len(bytes_read))
     # close the socket
     s.close()
+    os.chdir(source_directory)
+    removefile(directory, filename, source_directory)
+    
+def removefile(directory, filename, source_directory):
+    filepath = os.path.join(directory, filename)
+    os.remove(filepath)
+    os.chdir(source_directory)
 
 def main():
     # Code for other functionality if any
     print("Executing main()")
     print("error")
+
 
 if __name__ == "__main__":
     if len(sys.argv) > 1 and sys.argv[1] == "sendfile":
