@@ -6,6 +6,7 @@ import sys
 import asyncio
 import sqlite3
 
+# small test
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 5100
 BUFFER_SIZE = 4096
